@@ -1,29 +1,29 @@
 #!/usr/bin/python3
 """
-Task UTF-8 Validation
+Task on UTF-8 Validation
 """
 
 
-def validUTF8(data) -> bool:
+def validUTF8(data):
     """
-    A function that Returns True if data is a valid UTF-8 encoding, 
-    else return False
-    :param data:
-    :return:
+    data: a list of integers
+    Return: True if data is a valid UTF-8
+    encoding, else return False
     """
-    bytes_num = 0
-    for b in data:
-        x = 1 << 7
-        if not bytes_num:
-            while b & x:
-                bytes_num += 1
-                x >>= 1
-            if not bytes_num:
-                continue
-            if bytes_num == 1 or bytes_num > 4:
+    count_byte = 0
+
+    for x in data:
+        if count_byte == 0:
+            if x >> 5 == 0b110 or x >> 5 == 0b1110:
+                count_byte = 1
+            elif x >> 4 == 0b1110:
+                count_byte = 2
+            elif x >> 3 == 0b11110:
+                count_byte = 3
+            elif x >> 7 == 0b1:
                 return False
         else:
-            if b >> 6 != 0b10:
+            if x >> 6 != 0b10:
                 return False
-        bytes_num -= 1
-    return bytes_num == 0
+            count_byte -= 1
+    return count_byte == 0
