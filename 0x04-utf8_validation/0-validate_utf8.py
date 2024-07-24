@@ -6,7 +6,8 @@ Task UTF-8 Validation
 
 def validUTF8(data) -> bool:
     """
-    A function that Returns True if data is a valid UTF-8 encoding, else return False
+    A function that Returns True if data is a valid UTF-8 encoding, 
+    else return False
     :param data:
     :return:
     """
