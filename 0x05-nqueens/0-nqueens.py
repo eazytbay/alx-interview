@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Backtrading N Queens Challenge'''
+'''N Queens Challenge'''
 
 import sys
 
@@ -22,67 +22,67 @@ if __name__ == '__main__':
     solutions = []
     placed_queens = []  # coordinates format [row, column]
     stop = False
-    x = 0
-    y = 0
+    r = 0
+    c = 0
 
     # iterate thru rows
-    while x < n:
+    while r < n:
         goback = False
         # iterate thru columns
-        while y < n:
+        while c < n:
             # check is current column is safe
             safe = True
             for cord in placed_queens:
                 col = cord[1]
-                if(col == y or col + (x-cord[0]) == y or
-                        col - (x-cord[0]) == y):
+                if(col == c or col + (r-cord[0]) == c or
+                        col - (r-cord[0]) == c):
                     safe = False
                     break
 
             if not safe:
-                if y == n - 1:
+                if c == n - 1:
                     goback = True
                     break
-                y += 1
+                c += 1
                 continue
 
             # place queen
-            cords = [x, y]
+            cords = [r, c]
             placed_queens.append(cords)
             # if last row, append solution and reset all to last unfinished row
             # and last safe column in that row
-            if x == n - 1:
+            if r == n - 1:
                 solutions.append(placed_queens[:])
                 for cord in placed_queens:
                     if cord[1] < n - 1:
-                        x = cord[0]
-                        y = cord[1]
-                for z in range(n - x):
+                        r = cord[0]
+                        c = cord[1]
+                for i in range(n - r):
                     placed_queens.pop()
-                if x == n - 1 and y == n - 1:
+                if r == n - 1 and c == n - 1:
                     placed_queens = []
                     stop = True
-                x -= 1
-                y += 1
+                r -= 1
+                c += 1
             else:
-                y = 0
+                c = 0
             break
         if stop:
             break
         # on fail: go back to previous row
         # and continue from last safe column + 1
         if goback:
-            x -= 1
-            while x >= 0:
-                y = placed_queens[x][1] + 1
-                del placed_queens[x]  # delete previous queen coordinates
-                if y < n:
+            r -= 1
+            while r >= 0:
+                c = placed_queens[r][1] + 1
+                del placed_queens[r]  # delete previous queen coordinates
+                if c < n:
                     break
-                x -= 1
-            if x < 0:
+                r -= 1
+            if r < 0:
                 break
             continue
-        x += 1
+        r += 1
 
     for idx, val in enumerate(solutions):
         if idx == len(solutions) - 1:
