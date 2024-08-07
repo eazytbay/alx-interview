@@ -1,35 +1,53 @@
-const fetch = require('node-fetch');
+#!/usr/bin/node
 
-async function getMovieCharacters(movieId) {
-  const url = `https://swapi.dev/api/films/${movieId}/`;
+const request = require('request');
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error('Error: Unable to fetch data from the API');
+const movieId = process.argv[2];
+const filmEndPoint = 'https://swapi-api.hbtn.io/api/films/' + movieId;
+let people = [];
+const names = [];
+
+const requestCharacters = async () => {
+  await new Promise(resolve => request(filmEndPoint, (err, res, body) => {
+    if (err || res.statusCode !== 200) {
+      console.error('Error: ', err, '| StatusCode: ', res.statusCode);
+    } else {
+      const jsonBody = JSON.parse(body);
+      people = jsonBody.characters;
+      resolve();
     }
+  }));
+};
 
-    const filmData = await response.json();
-    const characterUrls = filmData.characters;
-
-    for (const characterUrl of characterUrls) {
-      const characterResponse = await fetch(characterUrl);
-      if (characterResponse.ok) {
-        const characterData = await characterResponse.json();
-        console.log(characterData.name);
-      }
+const requestNames = async () => {
+  if (people.length > 0) {
+    for (const p of people) {
+      await new Promise(resolve => request(p, (err, res, body) => {
+        if (err || res.statusCode !== 200) {
+          console.error('Error: ', err, '| StatusCode: ', res.statusCode);
+        } else {
+          const jsonBody = JSON.parse(body);
+          names.push(jsonBody.name);
+          resolve();
+        }
+      }));
     }
-  } catch (error) {
-    console.error(error.message);
+  } else {
+    console.error('Error: Got no Characters for some reason');
   }
-}
+};
 
-const args = process.argv.slice(2);
-if (args.length !== 1) {
-  console.log('Usage: node star_wars_characters.js <movie_id>');
-  process.exit(1);
-}
+const getCharNames = async () => {
+  await requestCharacters();
+  await requestNames();
 
-const movieId = args[0];
-getMovieCharacters(movieId);
+  for (const x of names) {
+    if (x === names[names.length - 1]) {
+      process.stdout.write(x);
+    } else {
+      process.stdout.write(x + '\n');
+    }
+  }
+};
 
+getCharNames();
