@@ -4,7 +4,7 @@ const request = require('request');
 
 const movieId = process.argv[2];
 const filmEndPoint = 'https://swapi-api.hbtn.io/api/films/' + movieId;
-let character = [];
+let people = [];
 const names = [];
 
 const requestCharacters = async () => {
@@ -13,15 +13,15 @@ const requestCharacters = async () => {
       console.error('Error: ', err, '| StatusCode: ', res.statusCode);
     } else {
       const jsonBody = JSON.parse(body);
-      character = jsonBody.characters;
+      people = jsonBody.characters;
       resolve();
     }
   }));
 };
 
 const requestNames = async () => {
-  if (character.length > 0) {
-    for (const p of character) {
+  if (people.length > 0) {
+    for (const p of people) {
       await new Promise(resolve => request(p, (err, res, body) => {
         if (err || res.statusCode !== 200) {
           console.error('Error: ', err, '| StatusCode: ', res.statusCode);
@@ -41,11 +41,11 @@ const getCharNames = async () => {
   await requestCharacters();
   await requestNames();
 
-  for (const x of names) {
-    if (x === names[names.length - 1]) {
-      process.stdout.write(x);
+  for (const n of names) {
+    if (n === names[names.length - 1]) {
+      process.stdout.write(n);
     } else {
-      process.stdout.write(x + '\n');
+      process.stdout.write(n + '\n');
     }
   }
 };
