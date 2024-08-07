@@ -1,39 +1,35 @@
-#!/usr/bin/node
+const fetch = require('node-fetch');
 
-// Import the 'request' library
-const request = require('request');
+async function getMovieCharacters(movieId) {
+  const url = `https://swapi.dev/api/films/${movieId}/`;
 
-// Definition of constant with the base URL of the Star Wars API
-const API_URL = 'https://swapi-api.alx-tools.com/api';
-
-// Confirms if the number of command line arguments is greater than 2
-if (process.argv.length > 2) {
-  // request film resource for the specified film ID
-  request(`${API_URL}/films/${process.argv[2]}/`, (err, _, body) => {
-    // Logs the error if it occurs
-    if (err) {
-      console.log(err);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Error: Unable to fetch data from the API');
     }
-    // Fecthes the characters URL from the film's response body
-    const charactersURL = JSON.parse(body).characters;
 
-    // Creates an array of Promises that resolve with the names of the characters
-    const charactersName = charactersURL.map(
-      url => new Promise((resolve, reject) => {
-        // Make a request to the character resource
-        request(url, (promiseErr, __, charactersReqBody) => {
-          // Rejects the Promise with the error if it occurs
-          if (promiseErr) {
-            reject(promiseErr);
-          }
-          // Resolve the Promise with the name of the character
-          resolve(JSON.parse(charactersReqBody).name);
-        });
-      }));
+    const filmData = await response.json();
+    const characterUrls = filmData.characters;
 
-    // Wait for all Promises to resolve and log the names of the characters, separated by new lines
-    Promise.all(charactersName)
-      .then(names => console.log(names.join('\n')))
-      .catch(allErr => console.log(allErr));
-  });
+    for (const characterUrl of characterUrls) {
+      const characterResponse = await fetch(characterUrl);
+      if (characterResponse.ok) {
+        const characterData = await characterResponse.json();
+        console.log(characterData.name);
+      }
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
 }
+
+const args = process.argv.slice(2);
+if (args.length !== 1) {
+  console.log('Usage: node star_wars_characters.js <movie_id>');
+  process.exit(1);
+}
+
+const movieId = args[0];
+getMovieCharacters(movieId);
+
